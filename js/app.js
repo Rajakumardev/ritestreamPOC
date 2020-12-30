@@ -1,5 +1,5 @@
-const apiToken = "redacted", // - please add a valid token
-    clientId = "redacted", // - please add a valid clientid
+const apiToken = "", // - please add a valid token
+    clientId = "", // - please add a valid clientid
     url = "https://content.allrites.com/api/video",
     videoId = "";
 const hlsjsDefaults = {
@@ -8,48 +8,33 @@ const hlsjsDefaults = {
     liveBackBufferLength: 60 * 15
 };
 let player = document.querySelector('#player');
-function getVideo(id) {
+async function getVideo(id) {
+    console.log("getvideo")
     const videoUrl = url + '?token=' + apiToken + '&video_id=' + id;
 
-    fetch(videoUrl, (data) => {
-        console.log(data);
-    });
+    const response = await fetch(videoUrl);
+    console.log(await response.json())
 }
-function sendPing() {
+async function sendPing() {
+    console.log("sendping");
     let urlString = 'https://content.allrites.com/api/api-activity?token=' + apiToken + '&company_id=' + clientId + '&device=hlsjs';
-    fetch(urlString, {
+    const response = await fetch(urlString, {
         method: 'POST',
         header: {
             "Content-Type": "application/json; charset=utf-8",
         }
-    }, (data) => {
-        console.log(data);
     });
-    // $.ajax({
-    //     type: "POST",
-    //     url: urlString,
-    //     contentType: "application/json; charset=utf-8",
-    //     crossDomain: true,
-    //     dataType: "json",
-    //     success: function (data, status, jqXHR) {
-    //         console.log("sendPing successfully");
-    //         console.log(data);
-    //     },
-
-    //     error: function (jqXHR, status) {
-    //         // error handler
-    //         console.log("sendPing error: " + status.code);
-    //         console.log(jqXHR);
-    //     }
-    // });
+    console.log(await response.json());
 }
 function loadStream() {
+    console.log("loadstream")
     if (Hls.isSupported()) {
         // button.innerHTML = 'Loading';
         var hls = new Hls(hlsjsDefaults);
         hls.loadSource('https://premiummovies.s3-us-west-2.amazonaws.com/4/4/play.m3u8');
         hls.attachMedia(player);
         hls.on(Hls.Events.MANIFEST_PARSED, function () {
+            player.muted = true;
             player.play();
             //   button.innerHTML = 'Play';
             //   button.addEventListener('click',play);
@@ -61,6 +46,10 @@ function loadStream() {
         //    button.innerHTML = 'Not Supported';
     }
 }
-sendPing();
-getVideo(4);
-loadStream();
+async function main() {
+    await sendPing();
+    await getVideo(4);
+    await loadStream();
+}
+
+main();
